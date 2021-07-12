@@ -1,0 +1,31 @@
+#自动清除commit 历史
+name: cleanCommit
+
+on: 
+  release:
+    types: [published]
+  push:
+    tags:
+    - 'v*'
+  schedule:
+    - cron: "18 18 * * *"
+#  watch:
+#    types: [started]
+   
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # if: github.event.repository.owner.id == github.event.sender.id  # 自己点的 start
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+    - name: Commit #更新日志到GitHub仓库
+      run: |
+        git config --global user.email AutoWakeUp@email.com
+        git config --global user.name AutoWakeUp
+        git checkout --orphan latest_branch
+        git add -A
+        git commit -am "cleanCommit"
+        git branch -D master
+        git branch -m master
+        git push -f --set-upstream origin master
